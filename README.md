@@ -1662,12 +1662,19 @@ Installation
 
 This role can either be installed manually with the ansible-galaxy CLI tool:
 
+    ansible-galaxy collection install community.general
+    ansible-galaxy collection install containers.podman
     ansible-galaxy install git+https://github.com/wandansible/podman,main,wandansible.podman
 
 Or, by adding the following to `requirements.yml`:
 
-    - name: wandansible.podman
-      src: https://github.com/wandansible/podman
+    roles:
+      - name: wandansible.podman
+        src: https://github.com/wandansible/podman
+
+    collections:
+      - name: community.general
+      - name: containers.podman
 
 Roles listed in `requirements.yml` can be installed with the following ansible-galaxy command:
 
