@@ -1,0 +1,49 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include wandansible.podman"
+      ansible.builtin.include_role:
+        name: "wandansible.podman"
+      vars:
+        podman_compose_install_method: github
+        podman_netavark_install_method: github
+
+        podman_userspace_network_provider: pasta
+
+        podman_netavark_firewall_driver: nftables
+
+        podman_provides_docker: true
+
+        podman_containers_conf_d:
+          - name: engine
+            config: |
+              [engine]
+              hooks_dir = ["/etc/containers/oci/hooks.d"]
+              pull_policy = "newer"
+              helper_binaries_dir = [
+                "/usr/local/libexec/podman",
+                "/usr/local/lib/podman",
+                "/usr/libexec/podman",
+                "/usr/lib/podman",
+                "/usr/bin/",
+              ]
+
+        podman_default_network:
+          driver: bridge
+          network_interface: podman0
+          subnets:
+            - subnet: 192.0.2.2/24
+              gateway: 192.0.2.254/24
+            - subnet: 2001:db8::2/64
+              gateway: 2001:db8::1/64
+          ipv6_enabled: true
+          internal: false
+          dns_enabled: true
+          ipam_options:
+            driver: host-local
+
+        podman_unqualified_search_registries:
+          - docker.io
+          - ghcr.io
+          - quay.io

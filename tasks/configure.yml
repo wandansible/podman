@@ -1,4 +1,12 @@
 ---
+- name: Create /etc/containers/networks
+  ansible.builtin.file:
+    path: "/etc/containers/networks/"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+    state: "directory"
+
 - name: Create /etc/containers/containers.conf.d/
   ansible.builtin.file:
     path: "/etc/containers/containers.conf.d/"
