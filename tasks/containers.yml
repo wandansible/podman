@@ -1,0 +1,14 @@
+---
+- name: Create networks
+  ansible.builtin.include_tasks:
+    file: create-network.yml
+  loop: "{{ podman_networks }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Create containers
+  ansible.builtin.include_tasks:
+    file: create-container.yml
+  loop: "{{ podman_containers }}"
+  loop_control:
+    label: "{{ item.name }}"

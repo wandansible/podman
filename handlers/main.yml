@@ -1,0 +1,8 @@
+---
+- name: systemd daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: podman network reload
+  ansible.builtin.command:
+    cmd: podman network reload --all

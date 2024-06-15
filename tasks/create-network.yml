@@ -1,0 +1,22 @@
+---
+- name: Create network {{ item.name }}
+  containers.podman.podman_network:
+    name: "{{ item.name }}"
+    debug: "{{ item.debug | default(omit) }}"
+    disable_dns: "{{ item.disable_dns | default(omit) }}"
+    dns: "{{ item.dns_resolvers | default(omit) }}"
+    driver: "{{ item.driver | default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
+    interface_name: "{{ item.interface_name | default(omit) }}"
+    internal: "{{ item.internal | default(omit) }}"
+    ipam_driver: "{{ item.ipam_driver | default(omit) }}"
+    ipv6: "{{ item.ipv6 | default(omit) }}"
+    macvlan: "{{ item.macvlan | default(omit) }}"
+    net_config: "{{ item.net_config | default(omit) }}"
+    opt: "{{ item.opts | default(omit) }}"
+    quadlet_dir: "{{ item.quadlet_dir | default(omit) }}"
+    quadlet_filename: "{{ item.quadlet_filename | default(omit) }}"
+    quadlet_options: "{{ item.quadlet_options | default(omit) }}"
+    recreate: "{{ item.recreate | default(omit) }}"
+    route: "{{ item.routes | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"

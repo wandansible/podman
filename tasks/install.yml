@@ -1,0 +1,61 @@
+---
+- name: Install podman
+  ansible.builtin.apt:
+    pkg: "{{ podman_packages }}"
+    install_recommends: false
+    state: present
+
+- name: Install podman machine packages
+  ansible.builtin.apt:
+    pkg: "{{ podman_machine_packages }}"
+    install_recommends: false
+    state: present
+  when: podman_machine_enabled
+
+- name: Install network provider packages
+  ansible.builtin.apt:
+    pkg: >-
+      {{ podman_network_packages
+         | selectattr("name", "equalto", podman_network_provider)
+         | map(attribute="packages") | flatten }}
+    install_recommends: false
+    state: present
+  when:
+    - not (podman_network_provider == "netavark" and podman_netavark_install_method == "github")
+
+- name: Install userspace network provider packages
+  ansible.builtin.apt:
+    pkg: >-
+      {{ podman_network_packages
+         | selectattr("name", "equalto", podman_userspace_network_provider)
+         | map(attribute="packages") | flatten }}
+    install_recommends: false
+    state: present
+
+- name: Install podman-compose from github
+  when: podman_compose_install_method == "github"
+  block:
+    - name: Get podman-compose GitHub release information
+      ansible.builtin.uri:
+        url: >-
+          {{ "https://api.github.com/repos/"
+             + podman_compose_github_org + "/" + podman_compose_github_repo
+             + "/releases"
+             + ("/tags" if podman_compose_github_version != "latest" else "")
+             + "/" + podman_compose_github_version }}
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+      register: _podman_compose_release_info
+
+    - name: Download podman-compose.py
+      ansible.builtin.get_url:
+        url: >-
+          {{ "https://raw.githubusercontent.com/"
+             + podman_compose_github_org + "/" + podman_compose_github_repo
+             + "/" + _podman_compose_release_info.json.tag_name + "/podman_compose.py" }}
+        dest: "/usr/local/bin/podman-compose"
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx

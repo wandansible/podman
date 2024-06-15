@@ -1,0 +1,129 @@
+---
+- name: Install netavark from github
+  when: podman_netavark_install_method == "github"
+  block:
+    - name: Create netavark directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+      loop:
+        - "{{ podman_netavark_bin_dir }}"
+        - "{{ podman_netavark_src_dir }}"
+
+    - name: Get netavark GitHub release information
+      ansible.builtin.uri:
+        url: >-
+          {{ "https://api.github.com/repos/"
+             + podman_netavark_github_org + "/" + podman_netavark_github_repo
+             + "/releases"
+             + ("/tags" if podman_netavark_github_version != "latest" else "")
+             + "/" + podman_netavark_github_version }}
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+      register: _netavark_release_info
+
+    - name: Get netavark archive URLs from GitHub release
+      ansible.builtin.set_fact:
+        _netavark_archives: >-
+          {{ _netavark_release_info.json.assets
+             | selectattr("name", "search", "linux", ignorecase=true)
+             | selectattr("name", "search", ansible_architecture, ignorecase=true)
+             | default([]) }}
+
+    - name: Get netavark checksum URL from GitHub release
+      ansible.builtin.set_fact:
+        _netavark_checksum_url: >-
+          {{ _netavark_release_info.json.assets
+             | selectattr("name", "equalto", podman_netavark_github_checksum_filename)
+             | map(attribute="browser_download_url")
+             | first
+             | default(None) }}
+
+    - name: Set netavark archive URLs
+      ansible.builtin.set_fact:
+        _netavark_archive_url: >-
+          {{ _netavark_archives | selectattr("name", "search", "netavark", ignorecase=true)
+             | map(attribute="browser_download_url") | first }}
+        _aardvark_dns_archive_url: >-
+          {{ _netavark_archives | selectattr("name", "search", "aardvark-dns", ignorecase=true)
+             | map(attribute="browser_download_url") | first }}
+
+    - name: Set netavark archive filenames
+      ansible.builtin.set_fact:
+        _netavark_archive_filename: "{{ _netavark_archive_url | split('/') | last }}"
+        _aardvark_dns_archive_filename: "{{ _aardvark_dns_archive_url | split('/') | last }}"
+
+    - name: Get netavark archive checksums from URLs
+      ansible.builtin.set_fact:
+        _netavark_archive_checksum: >-
+          {{ lookup("url", _netavark_checksum_url, wantlist=True)
+             | select("search", _netavark_archive_filename)
+             | first | default("") | split(" ") | first | default(None) }}
+        _aardvark_dns_archive_checksum: >-
+          {{ lookup("url", _netavark_checksum_url, wantlist=True)
+             | select("search", _aardvark_dns_archive_filename)
+             | first | default("") | split(" ") | first | default(None) }}
+
+    - name: Download netavark archives
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ podman_netavark_src_dir }}/{{ item.filename }}"
+        checksum: "{{ podman_netavark_github_checksum_type }}:{{ item.checksum }}"
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+      loop:
+        - url: "{{ _netavark_archive_url }}"
+          filename: "{{ _netavark_archive_filename }}"
+          checksum: "{{ _netavark_archive_checksum }}"
+        - url: "{{ _aardvark_dns_archive_url }}"
+          filename: "{{ _aardvark_dns_archive_filename }}"
+          checksum: "{{ _aardvark_dns_archive_checksum }}"
+      loop_control:
+        label: "{{ item.url }}"
+
+    - name: Extract netavark files from archives
+      ansible.builtin.unarchive:
+        src: "{{ podman_netavark_src_dir }}/{{ item.filename }}"
+        remote_src: true
+        dest: "{{ podman_netavark_bin_dir }}"
+        extra_opts:
+          - "--wildcards"
+          - "--no-anchored"
+          - "{{ item.binary }}"
+        owner: root
+        group: root
+      loop:
+        - filename: "{{ _netavark_archive_filename }}"
+          binary: "netavark"
+        - filename: "{{ _aardvark_dns_archive_filename }}"
+          binary: "aardvark-dns"
+      loop_control:
+        label: "{{ item.filename }}"
+      notify: "podman network reload"
+
+- name: Configure netavark firewall driver
+  when:
+    - podman_netavark_firewall_driver != ""
+    - podman_netavark_wrapper_dir != ""
+  block:
+    - name: Create netavark wrapper script directory
+      ansible.builtin.file:
+        path: "{{ podman_netavark_wrapper_dir }}"
+        owner: "root"
+        group: "root"
+        mode: "u=rwx,g=rx,o=rx"
+        state: "directory"
+
+    - name: Add netavark wrapper script
+      ansible.builtin.template:
+        src: "netavark-wrapper.sh"
+        dest: "{{ podman_netavark_wrapper_dir }}/netavark"
+        owner: "root"
+        group: "root"
+        mode: "u=rwx,g=rx,o=rx"

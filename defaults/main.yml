@@ -1,0 +1,82 @@
+---
+podman_packages:
+  - catatonit
+  - podman
+  - podman-compose
+  - uidmap
+
+podman_machine_enabled: false
+podman_machine_packages:
+  - qemu-kvm
+  - qemu-utils
+  - gvproxy
+
+podman_provides_docker: false
+
+podman_compose_install_method: apt
+podman_compose_github_org: containers
+podman_compose_github_repo: podman-compose
+podman_compose_github_version: latest
+
+podman_netavark_install_method: apt
+podman_netavark_github_org: wandpackaging
+podman_netavark_github_repo: netavark
+podman_netavark_github_checksum_filename: sha256sums.txt
+podman_netavark_github_checksum_type: sha256
+podman_netavark_github_version: latest
+podman_netavark_bin_dir: /usr/local/lib/podman
+podman_netavark_src_dir: /usr/local/src/netavark
+
+podman_netavark_wrapper_dir: "/usr/local/libexec/podman/"
+podman_netavark_firewall_driver: ""
+
+podman_network_provider: netavark
+
+podman_userspace_network_provider: slirp4netns
+
+podman_network_packages:
+  - name: cni
+    packages:
+      - containernetworking-plugins
+      - golang-github-containernetworking-plugin-dnsname
+  - name: pasta
+    packages:
+      - passt
+  - name: netavark
+    packages:
+      - aardvark-dns
+      - iptables
+      - netavark
+  - name: slirp4netns
+    packages:
+      - slirp4netns
+
+podman_containers_conf_d:
+  - name: network
+    config: |
+      [network]
+      network_backend = "{{ podman_network_provider }}"
+      default_rootless_network_cmd = "{{ podman_userspace_network_provider }}"
+
+podman_containers_policy_config: {}
+
+podman_libpod_config: ""
+
+podman_unqualified_search_registries: []
+podman_registries_conf_d:
+  - name: unqualified-search
+    config: |
+      unqualified-search-registries = [
+      {% for registry in podman_unqualified_search_registries %}
+        "{{ registry }}",
+      {% endfor %}
+      ]
+
+podman_container_hooks: []
+podman_container_hook_directory: "/usr/local/bin/podman/hooks"
+
+podman_containers: []
+
+podman_default_network: {}
+
+podman_networks: []

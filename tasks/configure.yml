@@ -1,0 +1,144 @@
+---
+- name: Create /etc/containers/containers.conf.d/
+  ansible.builtin.file:
+    path: "/etc/containers/containers.conf.d/"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+    state: "directory"
+  when: podman_containers_conf_d | length >= 1
+
+- name: Configure containers.conf.d files
+  ansible.builtin.template:
+    src: "containers/containers.conf.d"
+    dest: "/etc/containers/containers.conf.d/{{ item.name }}.conf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ podman_containers_conf_d }}"
+  loop_control:
+    label: "containers.conf.d/{{ item.name }}.conf"
+
+- name: Create /etc/containers/registries.conf.d/
+  ansible.builtin.file:
+    path: "/etc/containers/registries.conf.d/"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+    state: "directory"
+  when: podman_registries_conf_d | length >= 1
+
+- name: Configure registries.conf.d files
+  ansible.builtin.template:
+    src: "containers/registries.conf.d"
+    dest: "/etc/containers/registries.conf.d/{{ item.name }}.conf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ podman_registries_conf_d }}"
+  loop_control:
+    label: "registries.conf.d/{{ item.name }}.conf"
+
+- name: Create container hook directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+    state: "directory"
+  loop:
+    - "/etc/containers/oci/hooks.d/"
+    - "{{ podman_container_hook_directory }}"
+  when: podman_container_hooks | length >= 1
+
+- name: Configure container hooks
+  ansible.builtin.template:
+    src: "containers/hook.json"
+    dest: "/etc/containers/oci/hooks.d/{{ item.name }}.json"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ podman_container_hooks }}"
+  loop_control:
+    label: "hooks.d/{{ item.name }}.json"
+
+- name: Configure container hook scripts
+  ansible.builtin.template:
+    src: "containers/hook"
+    dest: "{{ podman_container_hook_directory }}/{{ item.name }}"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+  loop: "{{ podman_container_hooks }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Configure containers policy
+  ansible.builtin.template:
+    src: "containers/policy.json"
+    dest: "/etc/containers/policy.json"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  when: podman_containers_policy_config != {}
+
+- name: Configure libpod
+  ansible.builtin.template:
+    src: "containers/libpod.conf"
+    dest: "/etc/containers/libpod.conf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  when: podman_libpod_config != ""
+
+- name: Add podman-auto-update service overrides directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/podman-auto-update.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Add podman-auto-update service overrides
+  ansible.builtin.template:
+    src: podman-auto-update.conf
+    dest: /etc/systemd/system/podman-auto-update.service.d/service-overrides.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  notify: systemd daemon-reload
+
+- name: Add or remove podman-docker wrapper
+  ansible.builtin.apt:
+    pkg: "podman-docker"
+    install_recommends: false
+    state: "{{ 'present' if podman_provides_docker else 'absent' }}"
+
+- name: Silence podman-docker wrapper message
+  ansible.builtin.file:
+    path: "/etc/containers/nodocker"
+    owner: "root"
+    group: "root"
+    mode: u=rw,g=r,o=r
+    modification_time: "preserve"
+    access_time: "preserve"
+    state: "{{ 'touch' if podman_provides_docker else 'absent' }}"
+
+- name: Add or remove docker-compose symlink to podman
+  community.general.alternatives:
+    name: "docker-compose"
+    link: "/usr/local/bin/docker-compose"
+    path: >-
+      {{ "/usr/local/bin/podman-compose" if podman_compose_install_method == "github"
+         else "/usr/bin/podman-compose" }}
+    state: "{{ 'selected' if podman_provides_docker else 'absent' }}"
+
+- name: Configure default podman network
+  ansible.builtin.template:
+    src: containers/networks/podman.json
+    dest: /etc/containers/networks/podman.json
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  when: podman_default_network != {}
+  notify: podman network reload

@@ -1,0 +1,17 @@
+---
+- name: Install podman
+  ansible.builtin.import_tasks:
+    file: install.yml
+
+- name: Install and configure netavark
+  ansible.builtin.include_tasks:
+    file: netavark.yml
+  when: podman_network_provider == "netavark"
+
+- name: Configure podman
+  ansible.builtin.import_tasks:
+    file: configure.yml
+
+- name: Configure containers
+  ansible.builtin.import_tasks:
+    file: containers.yml
