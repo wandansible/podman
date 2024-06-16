@@ -4,7 +4,7 @@
     path: "/etc/containers/networks/"
     owner: "root"
     group: "root"
-    mode: "u=rwx,g=rx,o=rx"
+    mode: "u=rwx,g=,o="
     state: "directory"
 
 - name: Create /etc/containers/containers.conf.d/
