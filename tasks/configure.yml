@@ -137,9 +137,10 @@
     name: "docker-compose"
     link: "/usr/local/bin/docker-compose"
     path: >-
-      {{ "/usr/local/bin/podman-compose" if podman_compose_install_method == "github"
+      {{ "/usr/local/bin/podman-compose" if podman_compose_install_github | bool
          else "/usr/bin/podman-compose" }}
     state: "{{ 'selected' if podman_provides_docker else 'absent' }}"
+  when: "podman_compose_install_apt | bool or podman_compose_install_github | bool"
 
 - name: Configure default podman network
   ansible.builtin.template:

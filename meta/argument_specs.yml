@@ -18,7 +18,6 @@ argument_specs:
         default:
           - catatonit
           - podman
-          - podman-compose
           - uidmap
 
       podman_machine_enabled:
@@ -41,13 +40,15 @@ argument_specs:
         type: bool
         default: false
 
-      podman_compose_install_method:
-        description: Where to install podman-compose from
-        type: str
-        default: apt
-        choices:
-          - apt
-          - github
+      podman_compose_install_apt:
+        description: If true, install podman-compose package with apt
+        type: bool
+        default: true
+
+      podman_compose_install_github:
+        description: If True, install podman-compose from github
+        type: bool
+        default: false
 
       podman_compose_github_org:
         description: Name of organisation for podman-compose github repository

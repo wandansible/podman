@@ -48,11 +48,15 @@ OPTIONS (= is mandatory):
         default: latest
         type: str
 
-- podman_compose_install_method
-        Where to install podman-compose from
-        choices: [apt, github]
-        default: apt
-        type: str
+- podman_compose_install_apt
+        If true, install podman-compose package with apt
+        default: true
+        type: bool
+
+- podman_compose_install_github
+        If True, install podman-compose from github
+        default: false
+        type: bool
 
 - podman_container_hook_directory
         Directory to create podman hook scripts in
@@ -1615,7 +1619,7 @@ OPTIONS (= is mandatory):
 
 - podman_packages
         List of packages to install
-        default: [catatonit, podman, podman-compose, uidmap]
+        default: [catatonit, podman, uidmap]
         elements: str
         type: list
 
@@ -1688,7 +1692,8 @@ Example Playbook
          - role: wandansible.podman
            become: true
            vars:
-             podman_compose_install_method: github
+             podman_compose_install_github: true
+
              podman_netavark_install_method: github
 
              podman_userspace_network_provider: pasta

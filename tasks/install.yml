@@ -5,6 +5,12 @@
     install_recommends: false
     state: present
 
+- name: Install podman-compose
+  ansible.builtin.apt:
+    pkg: "podman-compose"
+    install_recommends: false
+    state: "{{ 'present' if podman_compose_install_apt | bool else 'absent' }}"
+
 - name: Install podman machine packages
   ansible.builtin.apt:
     pkg: "{{ podman_machine_packages }}"
@@ -33,7 +39,7 @@
     state: present
 
 - name: Install podman-compose from github
-  when: podman_compose_install_method == "github"
+  when: podman_compose_install_github | bool
   block:
     - name: Get podman-compose GitHub release information
       ansible.builtin.uri:

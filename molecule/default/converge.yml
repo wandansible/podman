@@ -6,7 +6,12 @@
       ansible.builtin.include_role:
         name: "wandansible.podman"
       vars:
-        podman_compose_install_method: github
+        podman_compose_install: >-
+          {{ true if
+             (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('24.04', '>=')) or
+             (ansible_distribution == "Debian" and ansible_distribution_major_version is version('12', '>='))
+             else false }}
+        podman_compose_install_github: true
         podman_netavark_install_method: github
 
         podman_userspace_network_provider: pasta

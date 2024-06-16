@@ -2,7 +2,6 @@
 podman_packages:
   - catatonit
   - podman
-  - podman-compose
   - uidmap
 
 podman_machine_enabled: false
@@ -13,7 +12,8 @@ podman_machine_packages:
 
 podman_provides_docker: false
 
-podman_compose_install_method: apt
+podman_compose_install_apt: true
+podman_compose_install_github: false
 podman_compose_github_org: containers
 podman_compose_github_repo: podman-compose
 podman_compose_github_version: latest
