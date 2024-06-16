@@ -439,7 +439,7 @@ OPTIONS (= is mandatory):
             default: {}
             type: dict
 
-            SUBOPTIONS:
+            OPTIONS:
 
             - after
                 Add the systemd unit after (After=) option, that
@@ -774,7 +774,7 @@ OPTIONS (= is mandatory):
             default: null
             type: dict
 
-            SUBOPTIONS:
+            OPTIONS:
 
             - max_size
                 Specify a max size of the log file (e.g 10mb).
@@ -1520,7 +1520,7 @@ OPTIONS (= is mandatory):
             elements: dict
             type: list
 
-            SUBOPTIONS:
+            OPTIONS:
 
             = gateway
                 Gateway for the subnet
@@ -1540,7 +1540,7 @@ OPTIONS (= is mandatory):
             default: null
             type: dict
 
-            SUBOPTIONS:
+            OPTIONS:
 
             - isolate
                 This option isolates networks by blocking traffic
