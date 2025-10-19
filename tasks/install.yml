@@ -32,8 +32,13 @@
     install_recommends: false
     state: present
 
-- name: Install podman-compose from github
-  when: podman_compose_install_method == "github"
+- name: Get podman-compose GitHub release information
+  run_once: true
+  delegate_to: localhost
+  delegate_facts: true
+  when:
+    - podman_compose_install_method == "github"
+    - "'github_podman_compose_release_info' not in hostvars['localhost']['ansible_facts']"
   block:
     - name: Get podman-compose GitHub release information
       ansible.builtin.uri:
@@ -49,13 +54,21 @@
         body_format: json
       register: _podman_compose_release_info
 
-    - name: Download podman-compose.py
-      ansible.builtin.get_url:
-        url: >-
-          {{ "https://raw.githubusercontent.com/"
-             + podman_compose_github_org + "/" + podman_compose_github_repo
-             + "/" + _podman_compose_release_info.json.tag_name + "/podman_compose.py" }}
-        dest: "/usr/local/bin/podman-compose"
-        owner: root
-        group: root
-        mode: u=rwx,g=rx,o=rx
+    - name: Cache podman-compose GitHub release information
+      ansible.builtin.set_fact:
+        github_podman_compose_release_info: "{{ _podman_compose_release_info.json }}"
+        cacheable: true
+
+- name: Download podman-compose.py from GitHub
+  ansible.builtin.get_url:
+    url: >-
+      {{ "https://raw.githubusercontent.com/"
+         + podman_compose_github_org + "/" + podman_compose_github_repo
+         + "/"
+         + hostvars["localhost"]["ansible_facts"]["github_podman_compose_release_info"].tag_name
+         + "/podman_compose.py" }}
+    dest: "/usr/local/bin/podman-compose"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+  when: podman_compose_install_method == "github"

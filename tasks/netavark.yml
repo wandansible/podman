@@ -1,29 +1,41 @@
 ---
 - name: Get netavark GitHub release information
-  ansible.builtin.uri:
-    url: >-
-      {{ "https://api.github.com/repos/"
-         + podman_netavark_github_org + "/" + podman_netavark_github_repo
-         + "/releases"
-         + ("/tags" if podman_netavark_github_version != "latest" else "")
-         + "/" + podman_netavark_github_version }}
-    method: GET
-    return_content: true
-    status_code: 200
-    body_format: json
-  register: _netavark_release_info
-  when: podman_netavark_install_method == "github"
+  run_once: true
+  delegate_to: localhost
+  delegate_facts: true
+  when:
+    - podman_netavark_install_method == "github"
+    - "'github_podman_netavark_release_info' not in hostvars['localhost']['ansible_facts']"
+  block:
+    - name: Get netavark GitHub release information
+      ansible.builtin.uri:
+        url: >-
+          {{ "https://api.github.com/repos/"
+             + podman_netavark_github_org + "/" + podman_netavark_github_repo
+             + "/releases"
+             + ("/tags" if podman_netavark_github_version != "latest" else "")
+             + "/" + podman_netavark_github_version }}
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+      register: _netavark_release_info
+
+    - name: Cache netavark GitHub release information
+      ansible.builtin.set_fact:
+        github_podman_netavark_release_info: "{{ _netavark_release_info.json }}"
+        cacheable: true
 
 - name: Install netavark from github
   when: podman_netavark_install_method == "github"
   vars:
     _netavark_archives: >-
-      {{ _netavark_release_info.json.assets
+      {{ hostvars["localhost"]["ansible_facts"]["github_podman_netavark_release_info"].assets
          | selectattr("name", "search", "linux", ignorecase=true)
          | selectattr("name", "search", ansible_architecture, ignorecase=true)
          | default([]) }}
     _netavark_checksum_url: >-
-      {{ _netavark_release_info.json.assets
+      {{ hostvars["localhost"]["ansible_facts"]["github_podman_netavark_release_info"].assets
          | selectattr("name", "equalto", podman_netavark_github_checksum_filename)
          | map(attribute="browser_download_url")
          | first
