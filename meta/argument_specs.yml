@@ -41,6 +41,11 @@ argument_specs:
         type: bool
         default: false
 
+      podman_github_token:
+        description: Optional bearer token to use to authenticate with api.github.com
+        type: str
+        default: ""
+
       podman_compose_install_method:
         description: Where to install podman-compose from
         type: str
