@@ -1280,6 +1280,11 @@ Options (= indicates it is required):
           default: {}
           type: dict
 
+- podman_github_token  Optional bearer token to use to authenticate
+                        with api.github.com
+          default: ''
+          type: str
+
 - podman_libpod_config  Podman containers/libpod.conf configuration
                          file contents, or empty string to leave file
                          as is

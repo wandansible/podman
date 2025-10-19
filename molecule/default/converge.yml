@@ -6,6 +6,8 @@
       ansible.builtin.include_role:
         name: "wandansible.podman"
       vars:
+        podman_github_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+
         podman_modern: >-
           {{ true if
              (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('24.04', '>=')) or

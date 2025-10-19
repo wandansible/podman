@@ -13,6 +13,8 @@ podman_machine_packages:
 
 podman_provides_docker: false
 
+podman_github_token: ""
+
 podman_compose_install_method: apt
 podman_compose_github_org: containers
 podman_compose_github_repo: podman-compose

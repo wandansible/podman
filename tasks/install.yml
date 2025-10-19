@@ -52,6 +52,9 @@
         return_content: true
         status_code: 200
         body_format: json
+        headers: >-
+          {{ {"Authorization": "Bearer " + podman_github_token}
+             if podman_github_token != "" else {} }}
       retries: 6
       delay: 15
       register: _podman_compose_release_info
