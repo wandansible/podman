@@ -19,6 +19,8 @@
         return_content: true
         status_code: 200
         body_format: json
+      retries: 6
+      delay: 15
       register: _netavark_release_info
 
     - name: Cache netavark GitHub release information
@@ -85,6 +87,8 @@
           checksum: "{{ _aardvark_dns_archive_checksum }}"
       loop_control:
         label: "{{ item.url }}"
+      retries: 6
+      delay: 15
 
     - name: Extract netavark files from archives
       ansible.builtin.unarchive:

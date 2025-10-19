@@ -52,6 +52,8 @@
         return_content: true
         status_code: 200
         body_format: json
+      retries: 6
+      delay: 15
       register: _podman_compose_release_info
 
     - name: Cache podman-compose GitHub release information
@@ -71,4 +73,6 @@
     owner: root
     group: root
     mode: u=rwx,g=rx,o=rx
+  retries: 6
+  delay: 15
   when: podman_compose_install_method == "github"
