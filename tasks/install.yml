@@ -58,6 +58,7 @@
       retries: 6
       delay: 15
       register: _podman_compose_release_info
+      check_mode: false
 
     - name: Cache podman-compose GitHub release information
       ansible.builtin.set_fact:

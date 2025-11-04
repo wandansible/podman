@@ -25,6 +25,7 @@
       retries: 6
       delay: 15
       register: _netavark_release_info
+      check_mode: false
 
     - name: Cache netavark GitHub release information
       ansible.builtin.set_fact:
