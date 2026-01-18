@@ -10,7 +10,7 @@
     pkg: "{{ podman_machine_packages }}"
     install_recommends: false
     state: present
-  when: podman_machine_enabled
+  when: podman_machine_enabled | bool
 
 - name: Install network provider packages
   ansible.builtin.apt:
