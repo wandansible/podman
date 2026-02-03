@@ -5,7 +5,7 @@
   delegate_facts: true
   when:
     - podman_netavark_install_method == "github"
-    - "'github_podman_netavark_release_info' not in hostvars['localhost']['ansible_facts']"
+    - "'github_podman_netavark_release_info' not in hostvars['localhost'].ansible_facts"
   block:
     - name: Get netavark GitHub release information
       ansible.builtin.uri:
@@ -36,12 +36,12 @@
   when: podman_netavark_install_method == "github"
   vars:
     _netavark_archives: >-
-      {{ hostvars["localhost"]["ansible_facts"]["github_podman_netavark_release_info"].assets
+      {{ hostvars["localhost"].ansible_facts.github_podman_netavark_release_info.assets
          | selectattr("name", "search", "linux", ignorecase=true)
          | selectattr("name", "search", ansible_facts.architecture, ignorecase=true)
          | default([]) }}
     _netavark_checksum_url: >-
-      {{ hostvars["localhost"]["ansible_facts"]["github_podman_netavark_release_info"].assets
+      {{ hostvars["localhost"].ansible_facts.github_podman_netavark_release_info.assets
          | selectattr("name", "equalto", podman_netavark_github_checksum_filename)
          | map(attribute="browser_download_url")
          | first
