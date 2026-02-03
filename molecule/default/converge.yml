@@ -10,9 +10,13 @@
 
         podman_modern: >-
           {{ true if
-             (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('24.04', '>=')) or
-             (ansible_distribution == "Debian" and ansible_distribution_major_version is version('12', '>='))
-             else false }}
+             (
+               ansible_facts.distribution == "Ubuntu"
+               and ansible_facts.distribution_version is version('24.04', '>=')
+             ) or (
+               ansible_facts.distribution == "Debian"
+               and ansible_facts.distribution_major_version is version('12', '>=')
+             ) else false }}
 
         podman_packages: >-
           {{ ["catatonit", "podman", "podman-compose", "uidmap"] if podman_modern | bool
