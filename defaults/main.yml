@@ -23,6 +23,7 @@ podman_compose_github_version: latest
 podman_netavark_install_method: apt
 podman_netavark_github_org: wandpackaging
 podman_netavark_github_repo: netavark
+podman_netavark_archive_extension: tar.gz
 podman_netavark_github_checksum_filename: sha256sums.txt
 podman_netavark_github_checksum_type: sha256
 podman_netavark_github_version: latest

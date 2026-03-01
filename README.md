@@ -1302,6 +1302,11 @@ Options (= indicates it is required):
           elements: str
           type: list
 
+- podman_netavark_archive_extension  File extension for the netavark
+                                      package archive
+          default: tar.gz
+          type: str
+
 - podman_netavark_bin_dir  Directory for the netavark binaries from
                             github
           default: /usr/local/lib/podman
