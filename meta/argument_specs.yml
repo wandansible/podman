@@ -87,6 +87,11 @@ argument_specs:
         type: str
         default: netavark
 
+      podman_netavark_archive_extension:
+        description: File extension for the netavark package archive
+        type: str
+        default: tar.gz
+
       podman_netavark_github_checksum_filename:
         description: Filename for the netavark checksums file on github
         type: str

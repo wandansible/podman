@@ -39,7 +39,7 @@
       {{ hostvars["localhost"].ansible_facts.github_podman_netavark_release_info.assets
          | selectattr("name", "search", "linux", ignorecase=true)
          | selectattr("name", "search", ansible_facts.architecture, ignorecase=true)
-         | selectattr("name", "search", "\.tar.gz$")
+         | selectattr("name", "search", "\."+podman_netavark_archive_extension+"$")
          | default([]) }}
     _netavark_checksum_url: >-
       {{ hostvars["localhost"].ansible_facts.github_podman_netavark_release_info.assets
