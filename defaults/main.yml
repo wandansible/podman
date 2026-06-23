@@ -30,8 +30,9 @@ podman_netavark_github_version: latest
 podman_netavark_bin_dir: /usr/local/lib/podman
 podman_netavark_src_dir: /usr/local/src/netavark
 
+podman_netavark_wrapper: false
 podman_netavark_wrapper_dir: "/usr/local/libexec/podman/"
-podman_netavark_firewall_driver: ""
+podman_netavark_firewall_driver: "nftables"
 
 podman_network_provider: netavark
 
@@ -59,6 +60,7 @@ podman_containers_conf_d:
     config: |
       [network]
       network_backend = "{{ podman_network_provider }}"
+      firewall_driver = "{{ podman_netavark_firewall_driver }}"
       default_rootless_network_cmd = "{{ podman_userspace_network_provider }}"
 
 podman_containers_policy_config: {}

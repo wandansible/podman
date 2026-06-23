@@ -117,6 +117,11 @@ argument_specs:
         type: str
         default: /usr/local/src/netavark
 
+      podman_netavark_wrapper:
+        description: If true, create netavark wrapper script for configuring firewall driver
+        type: bool
+        default: false
+
       podman_netavark_wrapper_dir:
         description: |
           Directory to put netavark wrapper for configuring firewall driver,
@@ -128,7 +133,7 @@ argument_specs:
         description: |
           Netavark firewall driver to use, or empty string to use default driver
         type: str
-        default: ""
+        default: "nftables"
 
       podman_network_provider:
         description: Network provider to use for podman
@@ -194,6 +199,7 @@ argument_specs:
             config: |
               [network]
               network_backend = "{{ podman_network_provider }}"
+              firewall_driver = "{{ podman_netavark_firewall_driver }}"
               default_rootless_network_cmd = "{{ podman_userspace_network_provider }}"
 
       podman_containers_policy_config:

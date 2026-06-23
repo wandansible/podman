@@ -1253,11 +1253,13 @@ Options (= indicates it is required):
 - podman_containers_conf_d  List of podman containers.conf.d
                              configuration files to create
           default: [{config: '[network]
-
+          
                 network_backend = "{{ podman_network_provider }}"
-
+          
+                firewall_driver = "{{ podman_netavark_firewall_driver }}"
+          
                 default_rootless_network_cmd = "{{ podman_userspace_network_provider }}"
-
+          
                 ', name: network}]
           elements: dict
           type: list
@@ -1315,7 +1317,7 @@ Options (= indicates it is required):
 - podman_netavark_firewall_driver  Netavark firewall driver to use,
                                     or empty string to use default
                                     driver
-          default: ''
+          default: nftables
           type: str
 
 - podman_netavark_github_checksum_filename  Filename for the netavark
@@ -1351,6 +1353,11 @@ Options (= indicates it is required):
                             archive from github
           default: /usr/local/src/netavark
           type: str
+
+- podman_netavark_wrapper  If true, create netavark wrapper script
+                            for configuring firewall driver
+          default: false
+          type: bool
 
 - podman_netavark_wrapper_dir  Directory to put netavark wrapper for
                                 configuring firewall driver, or empty

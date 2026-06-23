@@ -115,10 +115,17 @@
         label: "{{ item.filename }}"
       notify: "podman network reload"
 
-- name: Configure netavark firewall driver
-  when:
-    - podman_netavark_firewall_driver != ""
-    - podman_netavark_wrapper_dir != ""
+- name: Remove netavark installed from github
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ podman_netavark_bin_dir }}/netavark"
+    - "{{ podman_netavark_bin_dir }}/aardvark-dns"
+  when: podman_netavark_install_method == "apt"
+
+- name: Configure netavark firewall driver wrapper script
+  when: podman_netavark_wrapper_dir != ""
   block:
     - name: Create netavark wrapper script directory
       ansible.builtin.file:
@@ -135,3 +142,12 @@
         owner: "root"
         group: "root"
         mode: "u=rwx,g=rx,o=rx"
+      when:
+        - podman_netavark_wrapper | bool
+        - podman_netavark_firewall_driver != ""
+
+    - name: Remove netavark wrapper script
+      ansible.builtin.file:
+        path: "{{ podman_netavark_wrapper_dir }}/netavark"
+        state: "absent"
+      when: not podman_netavark_wrapper | bool or podman_netavark_firewall_driver == ""
