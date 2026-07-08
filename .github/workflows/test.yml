@@ -54,5 +54,4 @@ jobs:
         run: molecule test
         env:
           MOLECULE_DOCKER_IMAGE: ${{ matrix.target }}
-          ANSIBLE_INJECT_INVOCATION: True
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
