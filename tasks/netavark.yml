@@ -55,14 +55,6 @@
          | map(attribute="browser_download_url") | first }}
     _netavark_archive_filename: "{{ _netavark_archive_url | split('/') | last }}"
     _aardvark_dns_archive_filename: "{{ _aardvark_dns_archive_url | split('/') | last }}"
-    _netavark_archive_checksum: >-
-      {{ lookup("url", _netavark_checksum_url, wantlist=True)
-         | select("search", "\s"+_netavark_archive_filename+"$")
-         | first | default("") | split(" ") | first | default(None) }}
-    _aardvark_dns_archive_checksum: >-
-      {{ lookup("url", _netavark_checksum_url, wantlist=True)
-         | select("search", "\s"+_aardvark_dns_archive_filename+"$")
-         | first | default("") | split(" ") | first | default(None) }}
   block:
     - name: Create netavark directories
       ansible.builtin.file:
@@ -75,7 +67,24 @@
         - "{{ podman_netavark_bin_dir }}"
         - "{{ podman_netavark_src_dir }}"
 
+    - name: Get archive checksums
+      ansible.builtin.uri:
+        url: "{{ _netavark_checksum_url }}"
+        return_content: true
+      register: _netavark_archive_checksums
+      retries: 6
+      delay: 15
+
     - name: Download netavark archives
+      vars:
+        _netavark_archive_checksum: >-
+          {{ _netavark_archive_checksums.content.splitlines()
+             | select("search", "\s"+_netavark_archive_filename+"$")
+             | first | default("") | split(" ") | first | default(None) }}
+        _aardvark_dns_archive_checksum: >-
+          {{ _netavark_archive_checksums.content.splitlines()
+             | select("search", "\s"+_aardvark_dns_archive_filename+"$")
+             | first | default("") | split(" ") | first | default(None) }}
       ansible.builtin.get_url:
         url: "{{ item.url }}"
         dest: "{{ podman_netavark_src_dir }}/{{ item.filename }}"
