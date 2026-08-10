@@ -92,7 +92,7 @@ argument_specs:
         type: str
         default: tar.gz
 
-      podman_netavark_github_checksum_filename:
+      podman_netavark_checksum_filename:
         description: Filename for the netavark checksums file on github
         type: str
         default: sha256sums.txt
