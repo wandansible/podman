@@ -1314,15 +1314,15 @@ Options (= indicates it is required):
           default: /usr/local/lib/podman
           type: str
 
+- podman_netavark_checksum_filename  Filename for the netavark
+                                      checksums file on github
+          default: sha256sums.txt
+          type: str
+
 - podman_netavark_firewall_driver  Netavark firewall driver to use,
                                     or empty string to use default
                                     driver
           default: nftables
-          type: str
-
-- podman_netavark_github_checksum_filename  Filename for the netavark
-                                             checksums file on github
-          default: sha256sums.txt
           type: str
 
 - podman_netavark_github_checksum_type  The netavark checksums file

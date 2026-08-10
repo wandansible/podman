@@ -43,7 +43,7 @@
          | default([]) }}
     _netavark_checksum_url: >-
       {{ hostvars["localhost"].ansible_facts.github_podman_netavark_release_info.assets
-         | selectattr("name", "equalto", podman_netavark_github_checksum_filename)
+         | selectattr("name", "equalto", podman_netavark_checksum_filename)
          | map(attribute="browser_download_url")
          | first
          | default(None) }}
