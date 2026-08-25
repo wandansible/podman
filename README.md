@@ -14,7 +14,6 @@ Requirements
 
 This role requires the following collections to be installed:
 
-  - community.general
   - containers.podman
 
 Role Variables
@@ -1588,7 +1587,6 @@ Installation
 
 This role can either be installed manually with the ansible-galaxy CLI tool:
 
-    ansible-galaxy collection install community.general
     ansible-galaxy collection install containers.podman
     ansible-galaxy install git+https://github.com/wandansible/podman,main,wandansible.podman
 
@@ -1599,7 +1597,6 @@ Or, by adding the following to `requirements.yml`:
         src: https://github.com/wandansible/podman
 
     collections:
-      - name: community.general
       - name: containers.podman
 
 Roles listed in `requirements.yml` can be installed with the following ansible-galaxy command:
